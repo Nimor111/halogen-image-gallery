@@ -10,8 +10,9 @@ node_modules
 output
 .cache
 
-# Build directory
+# Build directories
 dist
+result
 
 # build files
 yarn.nix
