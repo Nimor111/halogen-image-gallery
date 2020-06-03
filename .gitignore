@@ -2,7 +2,16 @@
 .psci_modules
 bower_components
 node_modules
+.spago
+.spago2nix
 
 # Generated files
 .psci
 output
+.cache
+
+# Build directory
+dist
+
+# build files
+yarn.nix
