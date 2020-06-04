@@ -12,13 +12,20 @@ import Data.Either (either)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (wrap)
 import Data.String.Common (split)
+import Data.Symbol (SProxy(..))
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class.Console (log)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
+import ImageSearch (Output(..), imageSearch)
+import ImageSearch (Output) as ImageSearch
 import Simple.JSON (readJSON)
 
+
+type Slots = ( imageSearch :: forall query. H.Slot query ImageSearch.Output Int )
+
+_imageSearch = SProxy :: SProxy "imageSearch"
 
 type Tag = String
 
@@ -49,7 +56,7 @@ apiKey = "16825054-ba06b8349177c260e7635ff28"
 
 type Input = Unit
 
-data Action = Initialize | FetchImages
+data Action = Initialize | FetchImages | HandleSearch ImageSearch.Output
 
 component :: forall q i o m. MonadAff m => H.Component HH.HTML q i o m
 component =
@@ -62,16 +69,17 @@ component =
 initialState :: forall i. i -> State
 initialState _ = { loading: false, images: [], term: "" }
 
-render :: forall m. State -> H.ComponentHTML Action () m
+render :: forall m. MonadAff m => State -> H.ComponentHTML Action Slots m
 render state =
   HH.div
     [ HP.classes [ HH.ClassName "container mx-auto" ] ]
-    [ HH.div
+    [ HH.slot _imageSearch 0 imageSearch {} (Just <<< HandleSearch)
+    , HH.div
         [ HP.classes [ HH.ClassName "grid grid-cols-3 gap4" ] ]
         (renderImages state)
     ]
 
-renderImages :: forall m. State -> Array (H.ComponentHTML Action () m)
+renderImages :: forall m. State -> Array (H.ComponentHTML Action Slots m)
 renderImages state = if state.loading
   then
     [ HH.h1
@@ -100,20 +108,27 @@ renderImages state = if state.loading
           ]
       ]) state.images
 
-renderTag :: forall m. Tag -> H.ComponentHTML Action () m
+renderTag :: forall m. Tag -> H.ComponentHTML Action Slots m
 renderTag tag =
   HH.span
     [ HP.classes [ HH.ClassName "inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2" ] ]
     [ HH.text $ "#" <> tag ]
 
 
-handleAction :: forall o m. MonadAff m => Action -> H.HalogenM State Action () o m Unit
+handleAction :: forall o m. MonadAff m => Action -> H.HalogenM State Action Slots o m Unit
 handleAction = case _ of
   Initialize -> do
     handleAction FetchImages
 
   FetchImages -> bindFlipped (either (printError >>> log) pure) $ runExceptT do
     H.modify_ _ { loading = true }
-    response <- ExceptT $ H.liftAff $ AX.get AXRF.string "https://pixabay.com/api/?key=16825054-ba06b8349177c260e7635ff28&q=yellow+flowers&image_type=photo&pretty=true"
+    term <- H.gets _.term
+    response <- ExceptT $ H.liftAff $ AX.get AXRF.string ("https://pixabay.com/api/?key=" <> apiKey <> "&q=" <> term <> "&image_type=photo&pretty=true")
     (decoded :: Image) <- ExceptT $ pure $ (lmap (show >>> RequestContentError) $ readJSON response.body)
     H.modify_ _ { loading = false, images = decoded.hits }
+
+  HandleSearch output ->
+    case output of
+      TextSet text -> do
+        H.modify_ _ { term = text }
+        handleAction FetchImages
