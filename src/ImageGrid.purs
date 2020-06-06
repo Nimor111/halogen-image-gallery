@@ -19,11 +19,11 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
 import ImageSearch (Output(..), imageSearch)
-import ImageSearch (Output) as ImageSearch
+import ImageSearch (Output, Slot) as ImageSearch
 import Simple.JSON (readJSON)
 
 
-type Slots = ( imageSearch :: forall query. H.Slot query ImageSearch.Output Int )
+type Slots = ( imageSearch :: ImageSearch.Slot Unit )
 
 _imageSearch = SProxy :: SProxy "imageSearch"
 
@@ -73,7 +73,7 @@ render :: forall m. MonadAff m => State -> H.ComponentHTML Action Slots m
 render state =
   HH.div
     [ HP.classes [ HH.ClassName "container mx-auto" ] ]
-    [ HH.slot _imageSearch 0 imageSearch {} (Just <<< HandleSearch)
+    [ HH.slot _imageSearch unit imageSearch {} (Just <<< HandleSearch)
     , HH.div
         [ HP.classes [ HH.ClassName "grid grid-cols-3 gap4" ] ]
         (renderImages state)
@@ -120,15 +120,19 @@ handleAction = case _ of
   Initialize -> do
     handleAction FetchImages
 
-  FetchImages -> bindFlipped (either (printError >>> log) pure) $ runExceptT do
-    H.modify_ _ { loading = true }
-    term <- H.gets _.term
-    response <- ExceptT $ H.liftAff $ AX.get AXRF.string ("https://pixabay.com/api/?key=" <> apiKey <> "&q=" <> term <> "&image_type=photo&pretty=true")
-    (decoded :: Image) <- ExceptT $ pure $ (lmap (show >>> RequestContentError) $ readJSON response.body)
-    H.modify_ _ { loading = false, images = decoded.hits }
+  FetchImages -> fetchImages
 
   HandleSearch output ->
     case output of
       TextSet text -> do
         H.modify_ _ { term = text }
         handleAction FetchImages
+
+fetchImages :: forall o m. MonadAff m => H.HalogenM State Action Slots o m Unit
+fetchImages = bindFlipped (either (printError >>> log) pure) $ runExceptT do
+    H.modify_ _ { loading = true }
+    term <- H.gets _.term
+    response <- ExceptT $ H.liftAff $ AX.get AXRF.string ("https://pixabay.com/api/?key=" <> apiKey <> "&q=" <> term <> "&image_type=photo&pretty=true")
+    (decoded :: Image) <- ExceptT $ pure $ (lmap (show >>> RequestContentError) $ readJSON response.body)
+    H.modify_ _ { loading = false, images = decoded.hits }
+

@@ -2,11 +2,8 @@ module ImageSearch where
 
 import Prelude
 
-import DOM.HTML.Indexed.ButtonType (ButtonType(..))
-import DOM.HTML.Indexed.InputType (InputType(..))
 import Data.Maybe (Maybe(..))
 import Effect.Aff.Class (class MonadAff)
-import Effect.Class.Console (log)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
@@ -18,6 +15,8 @@ import Web.Event.Internal.Types (Event)
 type Input = {}
 
 type State = { text :: String }
+
+type Slot id = forall query. H.Slot query Output id
 
 data Action = SetText String | EmitText Event
 
