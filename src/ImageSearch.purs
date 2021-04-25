@@ -22,7 +22,7 @@ data Action = SetText String | EmitText Event
 
 data Output = TextSet String
 
-imageSearch :: forall q m. MonadAff m => H.Component HH.HTML q Input Output m
+imageSearch :: forall q m. MonadAff m => H.Component q Input Output m
 imageSearch =
   H.mkComponent
     { initialState
@@ -39,7 +39,7 @@ render state =
     [ HP.classes [ HH.ClassName "max-w-sm rounded overflow-hidden my-10 mx-auto"] ]
     [ HH.form
         [ HP.classes [ HH.ClassName "w-full max-w-sm" ]
-        , HE.onSubmit (Just <<< EmitText)
+        , HE.onSubmit EmitText
         ]
         [ HH.div
             [ HP.classes [ HH.ClassName "flex items-center border-b border-b-2 border-teal-500 py-2" ] ]
@@ -48,7 +48,7 @@ render state =
                 , HP.type_ HP.InputText
                 , HP.placeholder "Search Image Term..."
                 , HP.value state.text
-                , HE.onValueInput (Just <<< SetText)
+                , HE.onValueInput SetText
                 ]
             , HH.button
                 [ HP.classes [ HH.ClassName "flex-shrink-0 bg-teal-500 hover:bg-teal-700 border-teal-500 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded " ]

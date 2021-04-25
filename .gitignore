@@ -16,3 +16,5 @@ result
 
 # build files
 yarn.nix
+yarn-error.log
+.parcel-cache/

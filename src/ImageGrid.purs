@@ -12,7 +12,7 @@ import Data.Either (either)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (wrap)
 import Data.String.Common (split)
-import Data.Symbol (SProxy(..))
+import Type.Proxy (Proxy(..))
 import Effect.Aff.Class (class MonadAff)
 import Effect.Class.Console (log)
 import Halogen as H
@@ -25,7 +25,7 @@ import Simple.JSON (readJSON)
 
 type Slots = ( imageSearch :: ImageSearch.Slot Unit )
 
-_imageSearch = SProxy :: SProxy "imageSearch"
+_imageSearch = Proxy :: Proxy "imageSearch"
 
 type Tag = String
 
@@ -58,7 +58,7 @@ type Input = Unit
 
 data Action = Initialize | FetchImages | HandleSearch ImageSearch.Output
 
-component :: forall q i o m. MonadAff m => H.Component HH.HTML q i o m
+component :: forall q i o m. MonadAff m => H.Component q i o m
 component =
   H.mkComponent
     { initialState
@@ -73,7 +73,7 @@ render :: forall m. MonadAff m => State -> H.ComponentHTML Action Slots m
 render state =
   HH.div
     [ HP.classes [ HH.ClassName "container mx-auto" ] ]
-    [ HH.slot _imageSearch unit imageSearch {} (Just <<< HandleSearch)
+    [ HH.slot _imageSearch unit imageSearch {} HandleSearch
     , HH.div
         [ HP.classes [ HH.ClassName "grid grid-cols-3 gap4" ] ]
         (renderImages state)

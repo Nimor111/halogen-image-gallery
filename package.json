@@ -14,15 +14,16 @@
     "build:css": "postcss assets/styles/tailwind.css -o assets/styles/main.css",
     "watch:css": "postcss assets/styles/tailwind.css -o assets/styles/main.css"
   },
-  "devDependencies": {
-    "parcel-bundler": "^1.12.4"
-  },
   "dependencies": {
-    "autoprefixer": "^9.8.0",
-    "http-server": "^0.12.0",
-    "postcss-cli": "^7.1.1",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "tailwindcss": "^1.4.6"
+    "autoprefixer": "^10.2.5",
+    "http-server": "^0.12.3",
+    "parcel": "^2.0.0-beta.2",
+    "postcss": "^8.2.12",
+    "postcss-cli": "^8.3.1",
+    "postcss-import": "^14.0.1",
+    "postcss-nested": "^5.0.5",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "tailwindcss": "^2.1.2"
   }
 }
