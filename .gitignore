@@ -21,3 +21,6 @@ yarn-error.log
 
 # Auto-generated from tailwind
 assets/styles/main.css
+
+# Spago2nix deps
+spago-packages.nix
