@@ -1,5 +1,5 @@
 {
-  "name": "url-organizer",
+  "name": "halogen-image-gallery",
   "version": "1.0.0",
   "scripts": {
     "bootstrap-nix": "yarn && spago install && yarn2nix > yarn.nix && spago2nix generate",
