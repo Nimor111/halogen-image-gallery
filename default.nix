@@ -5,7 +5,7 @@ let
   spagoPkgs = import ./spago-packages.nix { inherit pkgs; };
 in
 pkgs.mkYarnPackage rec {
-  name = "url-organizer";
+  name = "halogen-image-gallery";
   src = ./.;
   packageJSON = ./package.json;
   yarnLock = ./yarn.lock;
@@ -30,8 +30,8 @@ pkgs.mkYarnPackage rec {
   '';
 
   meta = with pkgs.stdenv.lib; {
-    description = "Example for building Purescript Halogen app with Nix.";
-    homepage = "https://github.com/tbenst/purescript-nix-example";
-    maintainers = with maintainers; [ tbenst ];
+    description = "An image gallery with Pixabay search written in Halogen.";
+    homepage = "https://github.com/Nimor111/halogen-image-gallery";
+    maintainers = with maintainers; [ Nimor111 ];
   };
 }
